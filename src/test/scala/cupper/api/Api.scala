@@ -28,14 +28,30 @@ object Tweet {
   val ROOT = "/v1/tweet"
 
   val create = exec(http("post message")
-    .post(s"${ROOT}")
+    .post(s"${ROOT}/")
+    .header(HttpHeaderNames.Authorization, "Bearer ${token}")
+    .body(StringBody(
+      """{
+        |"content": "静岡駅 Now! #shizuoka"
+        |}
+        |""".stripMargin))
+    .check(status.is(200))
   )
 
   val findOwn = exec(http("find own tweets")
-    .post(s"${ROOT}")
+    .get(s"${ROOT}/")
+    .header(HttpHeaderNames.Authorization, "Bearer ${token}")
+    .check(status.in(200))
   )
 
   val search = exec(http("search tweets")
-    .post(s"${ROOT}")
+    .post(s"${ROOT}/find_by_hash_tag")
+    .header(HttpHeaderNames.Authorization, "Bearer ${token}")
+    .body(StringBody(
+      """{
+        |"tag":"shizuoka"
+        |}
+        |""".stripMargin))
+    .check(status.in(200))
   )
 }

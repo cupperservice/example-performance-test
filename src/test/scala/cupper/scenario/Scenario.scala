@@ -32,9 +32,18 @@ class Scenario extends Simulation with Config {
   val user = scenario("user1")
     .feed(feeder)
     .exec(User.login).exitHereIfFailed
+    .exec(Tweet.findOwn).exitHereIfFailed
+    .randomSwitch(
+      95.0 ->
+        exec(repeat(10) {
+          exec(Tweet.search).exitHereIfFailed
+        }),
+      5.0 -> exec(Tweet.create).exitHereIfFailed
+    )
+    .exec(User.logout).exitHereIfFailed
 
   setUp(
-//    user1.inject(atOnceUsers(1)),
-    user.inject(incrementUsersPerSec(5).times(10).eachLevelLasting(30.seconds).startingFrom(1)),
+//    user.inject(atOnceUsers(1)),
+    user.inject(incrementUsersPerSec(1).times(5).eachLevelLasting(5.seconds).startingFrom(1)),
   ).protocols(httpProtocol)
 }
